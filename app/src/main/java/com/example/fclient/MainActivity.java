@@ -2,11 +2,17 @@ package com.example.fclient;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.fclient.databinding.ActivityMainBinding;
+
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -19,11 +25,12 @@ public class MainActivity extends AppCompatActivity {
         System.loadLibrary("mbedcrypto");
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        com.example.fclient.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
+        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         initRng();
@@ -44,6 +51,27 @@ public class MainActivity extends AppCompatActivity {
         Log.d("fclient_ndk", Arrays.toString(tv.getText().toString().getBytes(StandardCharsets.UTF_8)));
         Log.d("fclient_ndk", Arrays.toString(decrypt(KEY, encryptedTextBytes)));
     }
+
+    public static byte[] stringToHex(String s) {
+        byte[] hex;
+        try {
+            hex = Hex.decodeHex(s.toCharArray());
+        } catch (DecoderException e) {
+            hex = null;
+        }
+        return hex;
+    }
+
+    public void onButtonClick(View v)
+    {
+        byte[] key = stringToHex("0123456789ABCDEF0123456789ABCDE0");
+        byte[] enc = encrypt(key, stringToHex("000000000000000102"));
+        byte[] dec = decrypt(key, enc);
+        String s = new String(Hex.encodeHex(dec)).toUpperCase();
+        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+    }
+
+
 
     /**
      * A native method that is implemented by the 'fclient' native library,

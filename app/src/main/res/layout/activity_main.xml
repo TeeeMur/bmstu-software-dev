@@ -25,7 +25,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/sample_text"
-        app:layout_constraintVertical_bias="0.0"/>
+        app:layout_constraintVertical_bias="0.0"
+        android:maxWidth="250dp"
+        android:ellipsize="end"/>
 
     <TextView
         android:id="@+id/sample_text3"
@@ -36,6 +38,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/sample_text2"
-        app:layout_constraintVertical_bias="0.0"/>
+        app:layout_constraintVertical_bias="0.0"
+        android:maxWidth="400dp"
+        android:ellipsize="end"/>
+
+    <Button
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/click_me"
+        android:onClick="onButtonClick"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sample_text3"
+        app:layout_constraintVertical_bias="0.0"
+        />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
