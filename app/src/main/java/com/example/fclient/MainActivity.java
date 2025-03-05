@@ -2,7 +2,6 @@ package com.example.fclient;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -20,16 +19,14 @@ public class MainActivity extends AppCompatActivity {
         System.loadLibrary("mbedcrypto");
     }
 
-    private ActivityMainBinding binding;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        com.example.fclient.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        int randomRes = initRng();
+        initRng();
         byte[] byteArr = randomBytes(20);
         // Example of a call to a native method
         TextView tv = binding.sampleText;
