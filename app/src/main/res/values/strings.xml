@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Fclient</string>
     <string name="click_me">Click me!</string>
+    <string name="insert_pin_str">Введите ПИН-код</string>
 </resources>

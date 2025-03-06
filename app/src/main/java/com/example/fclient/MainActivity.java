@@ -1,8 +1,15 @@
 package com.example.fclient;
 
+import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +26,8 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
+
+    ActivityResultLauncher activityResultLauncher;
     // Used to load the 'fclient' library on application startup.
     static {
         System.loadLibrary("fclient");
@@ -29,9 +38,30 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
 
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        activityResultLauncher  = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback() {
+                    @Override
+                    public void onActivityResult(Object o) {
+                        ActivityResult result = (ActivityResult) o;
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            Intent data = result.getData();
+                            // обработка результата
+                            String pin = data.getStringExtra("pin");
+                            Log.d("PIN", pin);
+                            Toast.makeText(MainActivity.this, pin, Toast.LENGTH_SHORT).show();
+                            binding.sampleText2.setTextSize(20);
+                            binding.sampleText2.setText(R.string.insert_pin_str);
+                            binding.sampleText3.setTextSize(16);
+                            binding.sampleText3.setText("Пин-код:" + pin);
+                        }
+                    }
+                });
 
         initRng();
         byte[] byteArr = randomBytes(20);
@@ -64,11 +94,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void onButtonClick(View v)
     {
-        byte[] key = stringToHex("0123456789ABCDEF0123456789ABCDE0");
-        byte[] enc = encrypt(key, stringToHex("000000000000000102"));
-        byte[] dec = decrypt(key, enc);
-        String s = new String(Hex.encodeHex(dec)).toUpperCase();
-        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+        Intent it = new Intent(this, PinpadActivity.class);
+        activityResultLauncher.launch(it);
     }
 
 
