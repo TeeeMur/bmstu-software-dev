@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.fclient.databinding.ActivityMainBinding;
 
@@ -24,10 +23,25 @@ import org.apache.commons.codec.binary.Hex;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TransactionEvents{
 
 
-    ActivityResultLauncher activityResultLauncher;
+    ActivityMainBinding binding;
+    ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        pin = data.getStringExtra("pin");
+                        synchronized (MainActivity.this) {
+                            MainActivity.this.notifyAll();
+                        }
+                    }
+                }
+            });
+    private String pin;
     // Used to load the 'fclient' library on application startup.
     static {
         System.loadLibrary("fclient");
@@ -40,28 +54,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
 
-        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        activityResultLauncher  = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback() {
-                    @Override
-                    public void onActivityResult(Object o) {
-                        ActivityResult result = (ActivityResult) o;
-                        if (result.getResultCode() == Activity.RESULT_OK) {
-                            Intent data = result.getData();
-                            // обработка результата
-                            String pin = data.getStringExtra("pin");
-                            Log.d("PIN", pin);
-                            Toast.makeText(MainActivity.this, pin, Toast.LENGTH_SHORT).show();
-                            binding.sampleText2.setTextSize(20);
-                            binding.sampleText2.setText(R.string.insert_pin_str);
-                            binding.sampleText3.setTextSize(16);
-                            binding.sampleText3.setText("Пин-код:" + pin);
-                        }
-                    }
-                });
 
         initRng();
         byte[] byteArr = randomBytes(20);
@@ -80,6 +74,23 @@ public class MainActivity extends AppCompatActivity {
         binding.sampleText3.setText("Расшифрованный текст:" + decryptedText);
         Log.d("fclient_ndk", Arrays.toString(tv.getText().toString().getBytes(StandardCharsets.UTF_8)));
         Log.d("fclient_ndk", Arrays.toString(decrypt(KEY, encryptedTextBytes)));
+    }
+
+    @Override
+    public String enterPin(int attempts, String amount) {
+        pin = "";
+        Intent it = new Intent(MainActivity.this, PinpadActivity.class);
+        it.putExtra("attempts", attempts);
+        it.putExtra("amount", amount);
+        synchronized (MainActivity.this) {
+            activityResultLauncher.launch(it);
+            try {
+                MainActivity.this.wait();
+            } catch (Exception ex) {
+                //todo: log error
+            }
+        }
+        return pin;
     }
 
     public static byte[] stringToHex(String s) {
