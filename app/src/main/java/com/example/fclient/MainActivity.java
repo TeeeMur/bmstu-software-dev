@@ -6,6 +6,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.fclient.databinding.ActivityMainBinding;
 
@@ -33,8 +35,12 @@ public class MainActivity extends AppCompatActivity implements TransactionEvents
                 @Override
                 public void onActivityResult(ActivityResult result) {
                     if (result.getResultCode() == Activity.RESULT_OK) {
+                        // String pin = data.getStringExtra("pin");
+                        // Toast.makeText(MainActivity.this, pin, Toast.LENGTH_SHORT).show();
                         Intent data = result.getData();
-                        pin = data.getStringExtra("pin");
+                        if (data != null) {
+                            pin = data.getStringExtra("pin");
+                        }
                         synchronized (MainActivity.this) {
                             MainActivity.this.notifyAll();
                         }
@@ -51,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements TransactionEvents
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
 
@@ -77,20 +84,25 @@ public class MainActivity extends AppCompatActivity implements TransactionEvents
     }
 
     @Override
-    public String enterPin(int attempts, String amount) {
+    public String enterPin(int attempts, String transaction_amount) {
         pin = "";
         Intent it = new Intent(MainActivity.this, PinpadActivity.class);
         it.putExtra("attempts", attempts);
-        it.putExtra("amount", amount);
+        it.putExtra("amount", transaction_amount);
         synchronized (MainActivity.this) {
             activityResultLauncher.launch(it);
             try {
                 MainActivity.this.wait();
             } catch (Exception ex) {
-                //todo: log error
+                Log.d("ENTER_PIN", "MainActivity waiting error");
             }
         }
         return pin;
+    }
+
+    @Override
+    public void transactionResult(boolean result) {
+        runOnUiThread(()-> Toast.makeText(MainActivity.this, result ? "ok" : "failed", Toast.LENGTH_SHORT).show());
     }
 
     public static byte[] stringToHex(String s) {
@@ -105,11 +117,16 @@ public class MainActivity extends AppCompatActivity implements TransactionEvents
 
     public void onButtonClick(View v)
     {
-        Intent it = new Intent(this, PinpadActivity.class);
-        activityResultLauncher.launch(it);
+        new Thread(()-> {
+            try {
+                byte[] trd = stringToHex("9F0206000010000000");
+                boolean ok = transaction(trd);
+                transactionResult(ok);
+            } catch (Exception ex) {
+                // todo: log error
+            }
+        }).start();
     }
-
-
 
     /**
      * A native method that is implemented by the 'fclient' native library,
@@ -120,4 +137,8 @@ public class MainActivity extends AppCompatActivity implements TransactionEvents
     public static native byte[] randomBytes(int no);
     public static native byte[] encrypt(byte[] key, byte[] data);
     public static native byte[] decrypt(byte[] key, byte[] data);
+
+    public native boolean transaction(byte[] trd);
+
+
 }

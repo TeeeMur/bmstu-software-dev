@@ -10,12 +10,20 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <TextView android:text="@string/insert_pin_str"
-            android:textSize="20sp"
-            android:textAlignment="center"
+        <TextView
+            android:id="@+id/insert_pin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="170dp"/>
+            android:layout_marginTop="140dp"
+            android:text="@string/insert_pin_str"
+            android:textAlignment="center"
+            android:textSize="20sp"/>
+
+        <TextView android:id="@+id/txtLastAttempts"
+            android:textSize="16sp"
+            android:textAlignment="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
         <TextView android:id="@+id/txtPin"
             android:text=""
@@ -24,7 +32,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="120dp"
+            android:layout_marginVertical="16dp"
             android:background="@drawable/textborder"/>
+
+        <TextView android:id="@+id/txtAmount"
+            android:textSize="20sp"
+            android:textAlignment="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
         <GridLayout android:layout_width="wrap_content"
             android:layout_height="wrap_content"
