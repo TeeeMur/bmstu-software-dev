@@ -21,6 +21,7 @@ android {
         }
         ndk {
             abiFilters += "arm64-v8a"
+            abiFilters += "x86_64"
         }
     }
 
@@ -53,8 +54,9 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
-    implementation(libs.commons.codec)
     implementation(libs.activity)
+    implementation(libs.commons.codec)
+    implementation(libs.commons.io)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

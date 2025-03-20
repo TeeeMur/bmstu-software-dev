@@ -21,9 +21,13 @@ import com.example.fclient.databinding.ActivityMainBinding;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.IOUtils;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity implements TransactionEvents{
 
@@ -63,24 +67,8 @@ public class MainActivity extends AppCompatActivity implements TransactionEvents
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        initRng();
-        byte[] byteArr = randomBytes(20);
-        // Example of a call to a native method
         TextView tv = binding.sampleText;
         tv.setText(stringFromJNI());
-        byte[] KEY = randomBytes(16);
-        Log.d("fclient_ndk", Arrays.toString(byteArr));
-        byteArr = encrypt(KEY, byteArr);
-        Log.d("fclient_ndk", Arrays.toString(byteArr));
-        byteArr = decrypt(KEY, byteArr);
-        Log.d("fclient_ndk", Arrays.toString(byteArr));
-        byte[] encryptedTextBytes = encrypt(KEY, tv.getText().toString().getBytes(StandardCharsets.UTF_8));
-        String decryptedText = new String(decrypt(KEY, encryptedTextBytes), StandardCharsets.UTF_8);
-        binding.sampleText2.setText("Шифрованный текст:" + Arrays.toString(encryptedTextBytes));
-        binding.sampleText3.setText("Расшифрованный текст:" + decryptedText);
-        Log.d("fclient_ndk", Arrays.toString(tv.getText().toString().getBytes(StandardCharsets.UTF_8)));
-        Log.d("fclient_ndk", Arrays.toString(decrypt(KEY, encryptedTextBytes)));
     }
 
     @Override
@@ -117,16 +105,40 @@ public class MainActivity extends AppCompatActivity implements TransactionEvents
 
     public void onButtonClick(View v)
     {
-        new Thread(()-> {
+        testHttpClient(binding.inputAddress.getText().toString());
+    }
+
+    private String getPageTitle(String html) {
+        Pattern pattern = Pattern.compile("<title>(.+?)</title>", Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(html);
+        String p;
+        if (matcher.find())
+            p = matcher.group(1);
+        else
+            p = "Not found";
+        return p;
+    }
+
+    protected void testHttpClient(String host_address)
+    {
+        new Thread(() -> {
             try {
-                byte[] trd = stringToHex("9F0206000010000000");
-                boolean ok = transaction(trd);
-                transactionResult(ok);
+                HttpURLConnection uc = (HttpURLConnection)
+                        (new URL("http://" + host_address + ":8081/api/v1/title").openConnection());
+                InputStream inputStream = uc.getInputStream();
+                String html = IOUtils.toString(inputStream);
+                String title = getPageTitle(html);
+                runOnUiThread(() ->
+                        Toast.makeText(this, title, Toast.LENGTH_SHORT).show());
             } catch (Exception ex) {
-                // todo: log error
+                runOnUiThread(() ->
+                        Toast.makeText(this, "Smth happened...", Toast.LENGTH_LONG).show());
+                Log.e("fapptag", "Http client fails", ex);
             }
         }).start();
     }
+
+
 
     /**
      * A native method that is implemented by the 'fclient' native library,
@@ -139,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements TransactionEvents
     public static native byte[] decrypt(byte[] key, byte[] data);
 
     public native boolean transaction(byte[] trd);
+    public native boolean transactionNew(byte[] trd);
 
 
 }

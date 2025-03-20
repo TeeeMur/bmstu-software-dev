@@ -54,7 +54,7 @@ extern "C" JNIEXPORT jstring JNICALL
 Java_com_example_fclient_MainActivity_stringFromJNI(
         JNIEnv* env,
         jobject /* this */) {
-    std::string hello = "Hello, world!";
+    std::string hello = "Input host address!";
     LOG_INFO("Hello from c++ %d", 2023);
     SLOG_INFO("Hello from spdlog {0}", 2023);
     return env->NewStringUTF(hello.c_str());
@@ -187,13 +187,14 @@ JNIEXPORT jboolean JNICALL
 Java_com_example_fclient_MainActivity_transactionNew(JNIEnv *xenv, jobject xthiz, jbyteArray xtrd) {
     jobject thiz  = xenv->NewGlobalRef(xthiz);
     jbyteArray trd  = (jbyteArray)xenv->NewGlobalRef(xtrd);
+
+
     std::thread t([thiz, trd] {
         bool detach = false;
         JNIEnv *env = getEnv(detach);
         jclass cls = env->GetObjectClass(thiz);
         jmethodID id = env->GetMethodID(
                 cls, "enterPin", "(ILjava/lang/String;)Ljava/lang/String;");
-        //TRD 9F0206000000000100 = amount = 1р
         uint8_t* p = (uint8_t*)env->GetByteArrayElements (trd, 0);
         jsize sz = env->GetArrayLength (trd);
         if ((sz != 9) || (p[0] != 0x9F) || (p[1] != 0x02) || (p[2] != 0x06))
@@ -216,8 +217,6 @@ Java_com_example_fclient_MainActivity_transactionNew(JNIEnv *xenv, jobject xthiz
                 break;
             ptc--;
         }
-
-        env->ReleaseByteArrayElements(trd, (jbyte *)p, 0);
         id = env->GetMethodID(cls, "transactionResult", "(Z)V");
         env->CallVoidMethod(thiz, id, ptc > 0);
 
@@ -227,6 +226,8 @@ Java_com_example_fclient_MainActivity_transactionNew(JNIEnv *xenv, jobject xthiz
         releaseEnv(detach, env);
         return true;
     });
+
     t.detach();
     return true;
 }
+
