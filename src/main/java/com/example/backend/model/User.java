@@ -38,6 +38,7 @@ public class User {
     @Column(name = "salt", length = 64)
     public String salt;
 
+    @JsonIgnore
     @Column(name = "token", length = 256)
     public String token;
 
