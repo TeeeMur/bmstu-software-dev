@@ -28,5 +28,6 @@ class Utils {
     }
 }
 
-export default new Utils()
+const utils = new Utils()
+export default utils;
             

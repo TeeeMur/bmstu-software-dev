@@ -1,14 +1,17 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import BackendService from '../services/BackendService';
 import Utils from "../utils/Utils";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { connect } from 'react-redux';
+import { userActions } from '../utils/Rdx';
+import { store } from '../utils/Rdx';
 
-export default function  Login() {
+export default connect()(function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loggingIn, setLoggingIn] = useState(false);
     const [submitted, setSubmitted] = useState(false);
-    const [error_message, setErrorMessage] = useState(null);
+//    const [error_message, setErrorMessage] = useState(null);
     const nav = useNavigate();
 
     function handleChangeLogin(e) {
@@ -22,44 +25,45 @@ export default function  Login() {
     function handleSubmit(e) {
         e.preventDefault();
         setSubmitted(true);
-        setErrorMessage(null);
+//        setErrorMessage(null);
         setLoggingIn(true);
         BackendService.login(username, password)
-            .then ( resp => {
+            .then(resp => {
                 resp.data.user.token = resp.data.token
                 Utils.saveUser(resp.data.user);
+                store.dispatch(userActions.login(resp.data.user))
                 setLoggingIn(false);
                 nav("/home");
             })
-            .catch( err => {
-                if (err.response && err.response.status === 401)
-                    setErrorMessage("Ошибка авторизации");
-                else
-                    setErrorMessage(err.message);
-                setLoggingIn(false);
+            .catch(err => {
+//                if (err.response && err.response.status === 401)
+//                    setErrorMessage("Ошибка авторизации");
+//                else
+//                    setErrorMessage(err.message);
+                    setLoggingIn(false);
             })
     }
 
-        return  (
-            <div className="col-md-6 me-0">
-            {error_message &&
-            <div className="alert alert-danger mt-1 me-0 ms-0">{error_message}</div>}
+    return (
+        <div className="col-md-6 me-0">
+            {/* {error_message &&
+                <div className="alert alert-danger mt-1 me-0 ms-0">{error_message}</div>} */}
             <h2>Вход</h2>
             <form name="form" onSubmit={handleSubmit}>
                 <div className="form-group">
                     <label htmlFor="username">Логин</label>
-                    <input type="text" className={'form-control' + (submitted && !username ? ' is-invalid' : '' )}
-                            name="username" value={username}
-                            onChange={handleChangeLogin} />
+                    <input type="text" className={'form-control' + (submitted && !username ? ' is-invalid' : '')}
+                        name="username" value={username}
+                        onChange={handleChangeLogin} />
                     {submitted && !username && <div className="help-block text-danger">Введите имя пользователя</div>}
                 </div>
                 <div className="form-group">
                     <label htmlFor="password">Пароль</label>
-                    <input type="password" className={'form-control' + (submitted && !password ? ' is-invalid' : '' )}
-                            name="password" value={password}
-                            onChange={handleChangePassword} />
+                    <input type="password" className={'form-control' + (submitted && !password ? ' is-invalid' : '')}
+                        name="password" value={password}
+                        onChange={handleChangePassword} />
                     {submitted && !password &&
-                    <div className="help-block text-danger">Введите пароль</div>
+                        <div className="help-block text-danger">Введите пароль</div>
                     }
                 </div>
                 <div className="form-group mt-2">
@@ -70,6 +74,6 @@ export default function  Login() {
                 </div>
             </form>
         </div>
-        );
+    );
 }
-            
+)            
