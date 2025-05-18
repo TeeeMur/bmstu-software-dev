@@ -22,7 +22,6 @@ class NavigationBarClass extends React.Component {
 
     logout() {
         BackendService.logout().then(() => {
-            Utils.removeUser();
             this.props.dispatch(userActions.logout())
             this.props.navigate('Login');
         });

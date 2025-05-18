@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.www.NonceExpiredException;
 import org.springframework.stereotype.Component;
+
 import com.example.backend.repositories.UserRepository;
 
 import java.time.LocalDateTime;
@@ -28,7 +29,6 @@ public class AuthenticationProvider extends AbstractUserDetailsAuthenticationPro
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails,
                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) throws AuthenticationException {
-
     }
     
     @Override

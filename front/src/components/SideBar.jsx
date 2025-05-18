@@ -11,12 +11,12 @@ const SideBar = props => {
         <>
         { props.expanded &&
             <Nav className={"flex-column my-sidebar my-sidebar-expanded"}>
-                <Nav.Item><Nav.Link as={Link} to="/countries"><FontAwesomeIcon icon={faGlobe} />{' '}Страны</Nav.Link></Nav.Item>
+                <Nav.Item><Nav.Link as={Link} to="countries"><FontAwesomeIcon icon={faGlobe} />{' '}Страны</Nav.Link></Nav.Item>
             </Nav>
         }
         { !props.expanded &&
             <Nav className={"flex-column my-sidebar my-sidebar-collapsed"}>
-                <Nav.Item><Nav.Link as={Link} to="/countries"><FontAwesomeIcon icon={faGlobe} size="2x" /></Nav.Link></Nav.Item>
+                <Nav.Item><Nav.Link as={Link} to="countries"><FontAwesomeIcon icon={faGlobe} size="2x" /></Nav.Link></Nav.Item>
             </Nav>
         }
         </>

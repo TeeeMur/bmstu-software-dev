@@ -1,3 +1,4 @@
+import React from 'react';
 import axios from 'axios'
 import Utils from '../utils/Utils'
 import { alertActions, store } from "../utils/Rdx";
@@ -39,26 +40,23 @@ class BackendService {
 
 }
 
-function showError(msg) {
-    store.dispatch(alertActions.error(msg))
-}
-
-axios.interceptors.request.use(
-    config => {
-        store.dispatch(alertActions.clear())
-        let token = Utils.getToken();
-        if (token)
-            config.headers.Authorization = token;
-        return config;
-    },
-    error => {
+axios.interceptors.request.use(function (config) {
+    store.dispatch(alertActions.clear())
+    let token = Utils.getToken();
+    console.log("INTERCEPTOR WORK");
+    if (token)
+        config.headers['Authorization'] = token;
+    console.log(config);
+    return config;
+},
+    function (error) {
         showError(error.message)
         return Promise.reject(error);
     }
-)
+);
 
 axios.interceptors.response.use(undefined,
-    error => {
+    function (error) {
         if (error.response && error.response.status && [401, 403].indexOf(error.response.status) !== -1)
             showError("Ошибка авторизации")
         else if (error.response && error.response.data && error.response.data.message)
@@ -67,7 +65,11 @@ axios.interceptors.response.use(undefined,
             showError(error.message)
         return Promise.reject(error);
     }
-)
+);
+
+function showError(msg) {
+    store.dispatch(alertActions.error(msg))
+}
 
 const backendService = new BackendService()
 

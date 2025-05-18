@@ -48,6 +48,11 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.sessionManagement(it -> it.sessionCreationPolicy(SessionCreationPolicy.NEVER))
+                .cors(httpSecurityCorsConfigurer -> 
+                    httpSecurityCorsConfigurer.configurationSource(request -> 
+                        new CorsConfiguration().applyPermitDefaultValues()
+                    )
+                )
                 .authenticationProvider(provider)
                 .addFilterBefore(authenticationFilter(), AnonymousAuthenticationFilter.class)
                 .authorizeHttpRequests((requests) -> requests
@@ -60,7 +65,6 @@ public class SecurityConfiguration {
     AuthenticationFilter authenticationFilter() throws Exception {
         final AuthenticationFilter filter = new AuthenticationFilter(PROTECTED_URLS);
         filter.setAuthenticationManager(authenticationManager());
-        //filter.setAuthenticationSuccessHandler(successHandler());
         return filter;
     }
 

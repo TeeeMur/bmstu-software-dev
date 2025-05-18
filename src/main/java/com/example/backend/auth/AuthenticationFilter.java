@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-//import java.util.Enumeration;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -28,7 +27,6 @@ public class AuthenticationFilter extends AbstractAuthenticationProcessingFilter
     public Authentication attemptAuthentication(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
                     throws AuthenticationException, IOException, ServletException {
         
-        //Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
         String token = httpServletRequest.getHeader(AUTHORIZATION);
         if (token != null) {
             token = StringUtils.removeStart(token, "Bearer").trim();

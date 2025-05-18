@@ -24,7 +24,7 @@ import com.example.backend.repositories.CountryRepository;
 import com.example.backend.tools.DataValidationException;
 
 
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/v1/countries")
 public class CountryController {
