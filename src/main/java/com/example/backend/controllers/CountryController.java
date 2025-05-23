@@ -7,9 +7,13 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -40,8 +44,8 @@ public class CountryController {
     }
     
     @GetMapping()
-    public ResponseEntity<List<Country>> getAllCountries() {
-        return ResponseEntity.ok(countryRepository.findAll());
+    public ResponseEntity<Page<Country>> getAllCountries(@RequestParam("page") int page, @RequestParam("limit") int limit) {
+        return ResponseEntity.ok(countryRepository.findAll(PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "name"))));
     }
 
     @GetMapping("/{id}/artists")
