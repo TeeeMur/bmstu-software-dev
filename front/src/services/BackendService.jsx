@@ -30,12 +30,12 @@ class BackendService {
         return axios.post(`${API_URL}/countries`, country);
     }
 
-    updateCountry(country) {
-        return axios.put(`${API_URL}/countries/${country.id}`, country);
+    updateCountry(id, country) {
+        return axios.post(`${API_URL}/countries/${id}`, country);
     }
 
     deleteCountries(countries) {
-        return axios.post(`${API_URL}/deletecountries`, countries);
+        return axios.post(`${API_URL}/countries/deletecountries`, countries);
     }
 
 }
@@ -43,10 +43,8 @@ class BackendService {
 axios.interceptors.request.use(function (config) {
     store.dispatch(alertActions.clear())
     let token = Utils.getToken();
-    console.log("INTERCEPTOR WORK");
     if (token)
         config.headers['Authorization'] = token;
-    console.log(config);
     return config;
 },
     function (error) {

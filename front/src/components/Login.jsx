@@ -30,7 +30,6 @@ export default connect()(function Login() {
         BackendService.login(username, password)
             .then(resp => {
                 resp.data.user.token = resp.data.token
-                Utils.saveUser(resp.data.user);
                 store.dispatch(userActions.login(resp.data.user))
                 setLoggingIn(false);
                 nav("/home");

@@ -9,6 +9,7 @@ import CountryListComponent from './components/CountryListComponent'
 import Utils from './utils/Utils';
 import { connect } from 'react-redux';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import CountryComponent from './components/CountryComponent';
 
 const ProtectedRoute = ({children}) => {
     let user = Utils.getUser();
@@ -32,6 +33,7 @@ const [exp,setExpanded] = useState(true);
                                 <Route path="login" element={<Login />}/>
                                 <Route path="home" element={<ProtectedRoute><Home/></ProtectedRoute>}/>
                                 <Route path="countries" element={<ProtectedRoute><CountryListComponent/></ProtectedRoute>}/>
+                                <Route path="countries/:id" element={<ProtectedRoute><CountryComponent /></ProtectedRoute>}/>
                             </Routes>
                         </div>
                     </div>
