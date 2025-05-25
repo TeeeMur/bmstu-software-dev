@@ -58,4 +58,7 @@ public class User {
         m.users.remove(this);
     }
 
+    @Transient
+    public String np;                
+
 }

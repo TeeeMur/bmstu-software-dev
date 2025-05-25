@@ -50,6 +50,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.sessionManagement(it -> it.sessionCreationPolicy(SessionCreationPolicy.NEVER))
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(config -> new CorsConfiguration().applyPermitDefaultValues().addAllowedMethod("PUT"))
                 .authenticationProvider(provider)
                 .addFilterBefore(authenticationFilter(), AnonymousAuthenticationFilter.class)
                 .authorizeHttpRequests((requests) -> requests

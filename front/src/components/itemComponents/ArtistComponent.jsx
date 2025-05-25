@@ -2,32 +2,44 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronLeft, faSave } from '@fortawesome/free-solid-svg-icons';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import BackendService from '../services/BackendService';
-import { alertActions, store } from '../utils/Rdx';
+import BackendService from '../../services/BackendService';
+import { alertActions, store } from '../../utils/Rdx';
 import { connect } from 'react-redux';
 
-const CountryComponent = props => {
+const ArtistComponent = props => {
 
     const index = useParams();
     const [name, setName] = useState('');
+    const [country, setCountry] = useState('');
+    const [century, setCentury] = useState('');
     const [hidden, setHidden] = useState(false);
     const navigate = useNavigate();
 
-    const handleChange = (e) => {
+    const handleChangeName = (e) => {
         setName(e.target.value)
     }
 
-    const refreshCountry = (index) => {
-        BackendService.retrieveCountry(index.id)
+    const handleChangeCountry = (e) => {
+        setCountry(e.target.value)
+    }
+
+    const handleChangeCentury = (e) => {
+        setCentury(e.target.value)
+    }
+
+    const refreshArtist = (index) => {
+        BackendService.retrieveArtist(index.id)
             .then(resp => {
                 setName(resp.data.name)
+                setCountry(resp.data.country.name)
+                setCentury(resp.data.century)
             })
             .catch(() => { setHidden(true) })
     }
 
     useEffect(() => {
         if (index.id != -1) {
-            refreshCountry(index);
+            refreshArtist(index);
         }
     }, [])
 
@@ -37,12 +49,12 @@ const CountryComponent = props => {
         } else {
             console.log({id: index.id, name: name})
             if (index.id == -1) {
-                BackendService.createCountry({name: name})
-                .then(() => {navigate('/countries')})
+                BackendService.createArtist({name: name})
+                .then(() => {navigate('/artists')})
                 .catch(() => {})
             } else {
-                BackendService.updateCountry(index.id, {name: name})
-                .then(() => {navigate('/countries')})
+                BackendService.updateArtist({id: index.id, name: name})
+                .then(() => {navigate('/artists')})
                 .catch(() => {})
             }
         }
@@ -53,11 +65,11 @@ const CountryComponent = props => {
     return (
         <div className="m-4">
             <div className="row my-2">
-                <h3>Страна</h3>
+                <h3>Художник</h3>
                 <div className="btn-toolbar">
                     <div className="btn-group ms-auto">
                         <button className="btn btn-outline-secondary"
-                            onClick={() => {navigate('/countries')}}>
+                            onClick={() => {navigate('/artists')}}>
                             <FontAwesomeIcon icon={faChevronLeft} />{' '}Назад
                         </button>
                     </div>
@@ -65,10 +77,18 @@ const CountryComponent = props => {
             </div>
             <div>
                 <form>
-                    <label className="ms-2 mb-1 fs-5">Название страны</label>
+                    <label className="ms-2 mb-1 fs-5">Имя</label>
                     <input type="text" className="form-control" 
                         name={name} value={name} autoComplete="off"
-                        onChange={handleChange} />
+                        onChange={handleChangeName} />
+                    <label className="ms-2 mb-1 fs-5">Страна</label>
+                    <input type="text" className="form-control" 
+                        name={country} value={country} autoComplete="off"
+                        onChange={handleChangeName} disabled="true"/>
+                    <label className="ms-2 mb-1 fs-5">Век</label>
+                    <input type="text" className="form-control" 
+                        name={century} value={century} autoComplete="off"
+                        onChange={handleChangeName} disabled="true"/>
                     <button className="btn btn-secondary mt-3" type="button"
                         onClick={onSubmit}>
                         <FontAwesomeIcon icon={faSave} />{" "}Сохранить
@@ -79,4 +99,4 @@ const CountryComponent = props => {
     )
 }
 
-export default connect()(CountryComponent);
+export default connect()(ArtistComponent);
