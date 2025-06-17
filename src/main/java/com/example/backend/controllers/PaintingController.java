@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -62,13 +63,13 @@ public class PaintingController {
         Map<String, String> map = new HashMap<>();
         for (Painting p : paintings) {
             try {
-                if (p.museum != null) {
+                if (p.museum.name != "") {
                     Optional<Museum> m = museumRepository.findByName(p.museum.name);
                     if (m.isPresent()) {
                         p.museum = m.get();
                     }
                 }
-                if (p.artist != null) {
+                if (p.artist.name != "") {
                     Optional<Artist> a = artistRepository.findByName(p.artist.name);
                     if (a.isPresent()) {
                         p.artist = a.get();
@@ -77,13 +78,17 @@ public class PaintingController {
                 Painting nm = paintingRepository.save(p);
                 map.put(nm.name, "success");
             } catch (Exception ex) {
-                String error;
-                if (ex.getMessage().contains("paintings_name_key")) {
-                    error = "paintingalreadyexists";
-                } else {
-                    error = "undefinederror";
+                String error = "Неизвестная ошибка";
+                if (ex.getMessage().contains("Painting")) {
+                    error = "Такая картина уже есть!";
+                } else if (ex.getMessage().contains("Artist")) {
+                    error = "Автор не найден";
+                } else if (ex.getMessage().contains("Museum")) {
+                    error = "Музей не найден";
                 }
-                map.put(p.name, error);
+                System.out.println(ex.getMessage());
+                map.put("data", error);
+                return ResponseEntity.status(HttpStatusCode.valueOf(400)).body(map);
             }
         }
         return ResponseEntity.ok(map);

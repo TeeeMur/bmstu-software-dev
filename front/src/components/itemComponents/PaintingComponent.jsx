@@ -12,7 +12,7 @@ const PaintingComponent = props => {
     const [name, setName] = useState('');
     const [artist, setArtist] = useState('');
     const [museum, setMuseum] = useState('');
-    const [year, setYear] = useState();
+    const [year, setYear] = useState('');
     const [hidden, setHidden] = useState(false);
     const navigate = useNavigate();
 
@@ -53,15 +53,21 @@ const PaintingComponent = props => {
     const onSubmit = () => {
         if (name === "") {
             store.dispatch(alertActions.error("Название не может быть пустым!"))
+        } else if (year.match(/^[0-9]+$/) == null) {
+            store.dispatch(alertActions.error("Год должен быть числом!"))
+        }  else if (artist === "") {
+            store.dispatch(alertActions.error("Автор не может быть пустым!"))
+        } else if (museum === "") {
+            store.dispatch(alertActions.error("Музей не может быть пустым!"))
         } else {
             if (index.id == -1) {
                 BackendService.createPainting([{name: name, year: year, artist: {name: artist}, museum: {name: museum}}])
-                .then(() => {navigate('/paintings')})
-                .catch(() => {})
+                .then((resp) => {navigate('/paintings')})
+                .catch((resp) => {store.dispatch(alertActions.error(resp.response.data.data))})
             } else {
                 BackendService.updatePainting({id: index.id, name: name})
                 .then(() => {navigate('/paintings')})
-                .catch(() => {})
+                .catch((resp) => {store.dispatch(alertActions.error(resp.response.data.data))})
             }
         }
     }
